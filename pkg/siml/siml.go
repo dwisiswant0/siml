@@ -1,6 +1,7 @@
 package siml
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -10,6 +11,10 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// Get returns a slice of similar websites for the given domain,
+// as scraped from https://www.sitelike.org/similar/{domain}/.
+//
+// It returns an error if the request fails or if the response cannot be parsed.
 func Get(domain string) ([]string, error) {
 	var list []string
 
@@ -50,6 +55,46 @@ func Get(domain string) ([]string, error) {
 			list = append(list, h)
 		}
 	})
+
+	return list, nil
+}
+
+// Gets same as Get but it accept multiple domain inputs.
+func Gets(domains ...string) ([]string, error) {
+	var list []string
+
+	switch len(domains) {
+	case 0:
+		return list, errors.New(errNoDomainInput)
+	case 1:
+		return Get(domains[0])
+	}
+
+	errCh := make(chan error, len(domains))
+
+	for _, domain := range domains {
+		wg.Add(1)
+		go func(domain string) {
+			defer wg.Done()
+			similar, err := Get(domain)
+			if err != nil {
+				errCh <- err
+				return
+			}
+			list = append(list, similar...)
+		}(domain)
+	}
+
+	go func() {
+		wg.Wait()
+		close(errCh)
+	}()
+
+	for err := range errCh {
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	return list, nil
 }

@@ -1,3 +1,3 @@
 package main
 
-var domain string
+var domains []string

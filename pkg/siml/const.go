@@ -6,4 +6,6 @@ const (
 	endpoint   = "https://www.sitelike.org/similar/%s/"
 	jsSelector = "#MainContent_pnlMain > div:nth-child(11) > div > div > div > div.col-md-8.col-xs-12.padding0 > a:nth-child(3)"
 	userAgent  = "Mozilla/Firefox"
+
+	errNoDomainInput = "no domain input provided"
 )

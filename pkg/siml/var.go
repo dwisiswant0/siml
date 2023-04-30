@@ -1,5 +1,12 @@
 package siml
 
-import "net/http"
+import (
+	"sync"
 
-var client *http.Client
+	"net/http"
+)
+
+var (
+	wg     sync.WaitGroup
+	client *http.Client
+)
